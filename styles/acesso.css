@@ -1,0 +1,147 @@
+@import url('./common.css');
+
+body {
+    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color:#f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+form {
+  position: relative;
+  max-width: 26em;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 2em auto;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+  padding: 1em 2.5em;
+  box-sizing: border-box;
+  border-radius: 0.3em;
+}
+
+form::after {
+  content: '';
+  position: absolute;
+  width: 0.7em;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(var(--primary), var(--secondary));
+  transition: all 0.3s ease-in-out;
+}
+
+form:hover::after {
+  transform: scaleY(1.1);
+}
+
+input {
+  width: 100%;
+  padding: 0.4em 0.5em;
+  background-color: #f1f1f1;
+  border: none;
+  border-radius: 0.2em;
+  margin-bottom: 1em;
+  font-size: 1em;
+}
+
+input:focus {
+  outline: none;
+  border: 1px solid lightgrey;
+}
+
+input:hover {
+  box-shadow: 0 0 5px rgba(70,130,180);
+}
+
+label {
+  width: 100%;
+  font-weight: 300;
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
+  color: #555;
+}
+
+button {
+  padding: 0.5em 2em;
+  background-color: var(--primary);
+  color: white;
+  margin-top: 2em;
+  font-weight: 400;
+  font-size: 1em;
+  border: none;
+  border-radius: 0.2em;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: var(--hover);
+}
+
+.form-header {
+  color: #999;
+  font-size: 1.8em;
+  margin-bottom: 0.5em;
+}
+
+.ingressar {
+  text-align: center;
+}
+
+.left {
+  width: 50%;
+  background-color: #f5f5f5;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.left img {
+  width: 60%;
+  transition: all 0.3s ease-in-out;
+}
+
+.left img:hover {
+  transform: scale(1.1);
+}
+
+.right {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.error {
+  border: 2px solid red;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 2em;
+  font-size: 0.9em;
+  color: #999;
+}
+
+.footer a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App</title>
+
+  <link rel="stylesheet" href="./styles/acesso.css">
+</head>
+
+<body>
+  <div class="left">
+    <img src="./assets/g2.jpg" alt="">
+  </div>
+  <div class="right">
+    <form>
+      <div class="form-header">
+        <p>Task Master</p>
+      </div>
+
+      <label>
+        Nome:
+        <input type="text" id="inputNome" autocomplete="new-password">
+        <div id="nomeError" class="error-message"></div>
+      </label>
+      <label>
+        Sobrenome:
+        <input type="text" id="inputSobrenome" autocomplete="new-password">
+        <div id="sobrenomeError" class="error-message"></div>
+      </label>
+      <label>
+        Email:
+        <input type="email" id="inputEmail" autocomplete="new-password">
+        <div id="emailError" class="error-message"></div>
+      </label>
+      <label>
+        Senha:
+        <input type="password" id="inputSenha" autocomplete="new-password">
+        <div id="senhaError" class="error-message"></div>
+      </label>
+      <label>
+        Repetir senha:
+        <input type="password" id="inputRepetirSenha" autocomplete="new-password">
+        <div id="repetirSenhaError" class="error-message"></div>
+      </label>
+      <div id="successMessage"></div>
+      
+      <button type="submit" id="submitButton">Criar conta</button>
+
+    </form>
+    <div class="ingressar">
+      <a href="index.html">Já possui conta? Acesse aqui</a>
+    </div>
+  </div>
+
+  <script src="./scripts/validation.js"></script>
+
+
+</body>
+
+</html>

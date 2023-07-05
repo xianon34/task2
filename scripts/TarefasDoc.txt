@@ -1,0 +1,249 @@
+/**
+ * Constante que armazena o URL base da API para a qual as solicitações serão feitas.
+ */
+const apiBaseUrl = 'https://todo-api.ctd.academy/v1';
+
+/**
+ * Constante que obtém o token JWT armazenado no localStorage.
+ * Esse token é usado para autenticar as solicitações feitas à API.
+ */
+const jwt = localStorage.getItem('jwt');
+
+/**
+ * Constante que define os cabeçalhos da solicitação HTTP com autenticação.
+ * Inclui os cabeçalhos "Accept", "Content-Type" e "Authorization",
+ * onde este último contém o token JWT obtido do localStorage.
+ */
+const requestHeadersAuth = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${jwt}`
+};
+
+/**
+ * Função para fazer logout.
+ * Limpa o localStorage e redireciona o usuário para a página de login.
+ */
+function logOut() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+/**
+ * Função para formatar uma data no formato "DD/MM/AA".
+ * @param {string} date - A data a ser formatada.
+ * @returns {string} - A data formatada.
+ */
+function formatDate(date) {
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear().toString().slice(2);
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Função para criar um elemento de tarefa e adicioná-lo ao DOM.
+ * @param {string} taskName - O nome da tarefa.
+ * @param {string} timestamp - O timestamp de criação da tarefa.
+ * @param {string} taskId - O ID da tarefa.
+ */
+function createTask(taskName, timestamp, taskId) {
+  const taskList = document.getElementById('taskList');
+
+  const taskElement = document.createElement('li');
+  taskElement.classList.add('task');
+  taskElement.setAttribute('id', taskId);
+
+  const checkbox = document.createElement('input');
+  checkbox.setAttribute('type', 'checkbox');
+  checkbox.classList.add('checkbox');
+  checkbox.addEventListener('change', () => markTaskAsDone(taskId));
+
+  const taskInfo = document.createElement('div');
+  taskInfo.classList.add('task-info');
+
+  const taskNameElement = document.createElement('span');
+  taskNameElement.classList.add('name');
+  taskNameElement.textContent = taskName;
+
+  const timestampElement = document.createElement('span');
+  timestampElement.classList.add('timestamp');
+  timestampElement.textContent = formatDate(timestamp);
+
+  const deleteButton = document.createElement('button');
+  deleteButton.classList.add('delete-button');
+  deleteButton.addEventListener('click', () => deleteTask(taskId));
+
+  taskInfo.appendChild(taskNameElement);
+  taskInfo.appendChild(timestampElement);
+  taskElement.appendChild(checkbox);
+  taskElement.appendChild(taskInfo);
+  taskElement.appendChild(deleteButton);
+
+  taskList.appendChild(taskElement);
+}
+
+/**
+ * Função para obter as tarefas do servidor.
+ * Envia uma solicitação GET para o endpoint "/tasks" da API,
+ * incluindo os cabeçalhos de autenticação.
+ * Em seguida, trata a resposta, criando uma tarefa para cada uma retornada e adicionando-a ao DOM.
+ */
+function getTasks() {
+  fetch(`${apiBaseUrl}/tasks`, {
+    headers: requestHeadersAuth
+  })
+    .then(response => {
+      if (response.ok) return response.json();
+      if (response.status === 401) logOutra parte da documentação:
+
+```javascript
+      throw new Error('Erro ao obter as tarefas.');
+    })
+    .then(data => {
+      data.forEach(task => {
+        const { name, createdAt, _id } = task;
+        createTask(name, createdAt, _id);
+      });
+    })
+    .catch(error => console.log(error.message));
+}
+
+/**
+ * Função para criar uma nova tarefa.
+ * Envia uma solicitação POST para o endpoint "/tasks" da API,
+ * incluindo o nome da tarefa no corpo da solicitação.
+ * Em seguida, trata a resposta, criando uma tarefa com os dados retornados e adicionando-a ao DOM.
+ * @param {string} taskName - O nome da nova tarefa.
+ */
+function createNewTask(taskName) {
+  const requestBody = JSON.stringify({ name: taskName });
+
+  fetch(`${apiBaseUrl}/tasks`, {
+    method: 'POST',
+    headers: requestHeadersAuth,
+    body: requestBody
+  })
+    .then(response => {
+      if (response.ok) return response.json();
+      if (response.status === 401) logOut();
+      throw new Error('Erro ao criar uma nova tarefa.');
+    })
+    .then(data => {
+      const { name, createdAt, _id } = data;
+      createTask(name, createdAt, _id);
+      document.getElementById('taskName').value = '';
+    })
+    .catch(error => console.log(error.message));
+}
+
+/**
+ * Função para verificar se o usuário está autenticado.
+ * Se não houver um token JWT armazenado, a função chama a função logOut().
+ * Caso contrário, chama a função getTasks() para obter as tarefas do servidor.
+ */
+function checkAuthUser() {
+  if (!jwt) {
+    logOut();
+  } else {
+    getTasks();
+  }
+}
+
+checkAuthUser();
+
+const form = document.getElementById('createTaskForm');
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const taskName = document.getElementById('taskName').value;
+  createNewTask(taskName);
+});
+
+document.getElementById('closeApp').addEventListener('click', logOut);
+
+/**
+ * Função para excluir uma tarefa.
+ * Faz uma solicitação DELETE para o endpoint /tasks/{taskId} da API,
+ * incluindo os cabeçalhos de autenticação.
+ * Se a solicitação for bem-sucedida, o elemento da tarefa correspondente é removido do DOM.
+ * @param {string} taskId - O ID da tarefa a ser excluída.
+ */
+function deleteTask(taskId) {
+  fetch(`${apiBaseUrl}/tasks/${taskId}`, {
+    method: 'DELETE',
+    headers: requestHeadersAuth
+  })
+    .then(response => {
+      if (response.ok) {
+        const taskElement = document.getElementById(taskId);
+        taskElement.remove();
+      } else {
+        if (response.status === 401) logOut();
+        throw new Error('Erro ao excluir a tarefa.');
+      }
+    })
+    .catch(error => console.log(error.message));
+}
+
+/**
+ * Função para atualizar o nome de uma tarefa.
+ * Faz uma solicitação PUT para o endpoint /tasks/{taskId} da API,
+ * incluindo os cabeçalhos de autenticação e o novo nome da tarefa no corpo da solicitação.
+ * Se a solicitação for bem-sucedida, o nome da tarefa no elemento correspondente é atualizado no DOM.
+ * @param {string} taskId - O ID da tarefa a ser atualizada.
+ * @param {string} newTaskName - O novo nome da tOutra parte da documentação:
+
+```javascript
+ * @param {string} newTaskName - O novo nome da tarefa.
+ */
+function updateTask(taskId, newTaskName) {
+  const requestBody = JSON.stringify({ name: newTaskName });
+
+  fetch(`${apiBaseUrl}/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: requestHeadersAuth,
+    body: requestBody
+  })
+    .then(response => {
+      if (response.ok) {
+        const taskElement = document.getElementById(taskId);
+        const taskNameElement = taskElement.querySelector('.name');
+        taskNameElement.textContent = newTaskName;
+      } else {
+        if (response.status === 401) logOut();
+        throw new Error('Erro ao atualizar a tarefa.');
+      }
+    })
+    .catch(error => console.log(error.message));
+}
+
+/**
+ * Função para marcar uma tarefa como concluída.
+ * Faz uma solicitação PUT para o endpoint /tasks/{taskId} da API,
+ * incluindo os cabeçalhos de autenticação e um objeto JSON indicando que a tarefa foi concluída.
+ * Se a solicitação for bem-sucedida, a classe CSS 'done' é adicionada ao elemento da tarefa correspondente
+ * e o elemento é movido para a lista de tarefas concluídas no DOM.
+ * @param {string} taskId - O ID da tarefa a ser marcada como concluída.
+ */
+function markTaskAsDone(taskId) {
+  const requestBody = JSON.stringify({ done: true });
+
+  fetch(`${apiBaseUrl}/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: requestHeadersAuth,
+    body: requestBody
+  })
+    .then(response => {
+      if (response.ok) {
+        const taskElement = document.getElementById(taskId);
+        taskElement.classList.add('done');
+        const completedTasksList = document.getElementById('completedTasks');
+        completedTasksList.appendChild(taskElement);
+      } else {
+        if (response.status === 401) logOut();
+        throw new Error('Erro ao marcar a tarefa como concluída.');
+      }
+    })
+    .catch(error => console.log(error.message));
+}

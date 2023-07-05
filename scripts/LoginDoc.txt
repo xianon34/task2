@@ -1,0 +1,112 @@
+/**
+ * URL base da API para a qual as solicitações serão feitas.
+ */
+const apiBaseUrl = 'https://todo-api.ctd.academy/v1';
+
+/**
+ * Referência ao botão de envio do formulário de login.
+ */
+const buttonLoginSubmitRef = document.querySelector('#buttonLoginSubmit');
+
+/**
+ * Referência ao campo de entrada de email.
+ */
+const inputEmail = document.getElementById('inputEmail');
+
+/**
+ * Referência ao campo de entrada de senha.
+ */
+const inputPassword = document.getElementById('inputPassword');
+
+/**
+ * Função para validar um email.
+ * Utiliza uma expressão regular para verificar se o email possui um formato válido.
+ * @param {string} email - O email a ser validado.
+ * @returns {boolean} - Retorna true se o email for válido, caso contrário retorna false.
+ */
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+/**
+ * Função para validar uma senha.
+ * Verifica se a senha possui pelo menos 4 caracteres.
+ * @param {string} password - A senha a ser validada.
+ * @returns {boolean} - Retorna true se a senha for válida, caso contrário retorna false.
+ */
+function validatePassword(password) {
+  return password.length >= 4;
+}
+
+/**
+ * Função para autenticar o usuário.
+ * É chamada quando o botão de envio do formulário de login é clicado.
+ * Realiza a validação dos campos de email e senha.
+ * Se os campos forem válidos, envia uma solicitação de autenticação para a API.
+ * Se a autenticação for bem-sucedida, armazena o token JWT no localStorage e redireciona para a página "tarefas.html".
+ * Caso contrário, exibe um alerta informando que as credenciais são inválidas.
+ * @param {Event} event - O evento de clique no botão de envio.
+ */
+function authUser(event) {
+  event.preventDefault();
+
+  const email = inputEmail.value.trim();
+  const password = inputPassword.value.trim();
+
+  const emailErrorMessage = document.getElementById('emailErrorMessage');
+  const passwordErrorMessage = document.getElementById('passwordErrorMessage');
+
+  emailErrorMessage.textContent = ''; // Limpa a mensagem de erro anterior
+  passwordErrorMessage.textContent = ''; // Limpa a mensagem de erro anterior
+
+  let isValid = true;
+
+  if (!validateEmail(email)) {
+    emailErrorMessage.textContent = 'Por favor, insira um email válido.';
+    emailErrorMessage.style.color = 'red';
+    isValid = false;
+  }
+
+  if (!validatePassword(password)) {
+    passwordErrorMessage.textContent = 'A senha deve conter pelo menos 4 caracteres.';
+    passwordErrorMessage.style.color = 'red';
+    isValid = false;
+  }
+
+  if (!isValid) {
+    return;
+  }
+
+  const requestHeaders = {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  };
+
+  const user = {
+    email: email,
+    password: password,
+  };
+
+  const requestSettings = {
+    method: 'POST',
+    body: JSON.stringify(user),
+    headers: requestHeaders
+  };
+
+  fetch(`${apiBaseUrl}/users/login`, requestSettings)
+    .then(response => {
+      if (response.ok) {
+        response.json().then(data => {
+          localStorage.setItem('jwt', data.jwt);
+          window.location.href = 'tarefas.html';
+        });
+      } else {
+        alert('Credenciais inválidas. Por favor,verifique seu email e senha.');
+      }
+    });
+}
+
+// Adiciona um ouvinte de evento ao botão de envio do formulário de login.
+// Quando o botão é clicado, a função authUser() é chamada para autenticar o usuário.
+buttonLoginSubmitRef.addEventListener('click', event => authUser(event));
